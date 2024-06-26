@@ -26,4 +26,19 @@ Vagrant.configure("2") do |config|
     # https://developer.hashicorp.com/vagrant/docs/provisioning/docker
   end
 
+  # Provision kubectl
+  config.vm.provision "shell", inline: <<-SHELL
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    kubectl version --client
+  SHELL
+
+    # Provision Kind
+  config.vm.provision "shell", inline: <<-SHELL
+    curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64
+    chmod +x ./kind
+    sudo mv ./kind /usr/local/bin/kind
+    kind --version
+  SHELL
+
 end
