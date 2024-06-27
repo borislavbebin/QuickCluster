@@ -19,6 +19,9 @@ Vagrant.configure("2") do |config|
     vm.cpus = 2
   end
 
+  # Synchronze terraform dirrectory with vagrant
+  config.vm.synced_folder "./terraform", "/vagrant/terraform"
+
   # Provision Docker
   config.vm.provision "docker" do |d|
     d.pull_images "ubuntu"
@@ -33,9 +36,9 @@ Vagrant.configure("2") do |config|
     kubectl version --client
   SHELL
 
-    # Provision Kind
+    # Install Kind
   config.vm.provision "shell", inline: <<-SHELL
-    curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64
+    curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64
     chmod +x ./kind
     sudo mv ./kind /usr/local/bin/kind
     kind --version
@@ -50,5 +53,12 @@ Vagrant.configure("2") do |config|
     terraform version
   SHELL
   # https://developer.hashicorp.com/well-architected-framework/operational-excellence/verify-hashicorp-binary
+  
+  # Run Terraform from a shell provisioner
+  config.vm.provision "shell", inline: <<-SHELL
+    cd /vagrant/terraform
+    terraform init
+    terraform apply -auto-approve
+  SHELL
 
 end
